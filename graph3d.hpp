@@ -22,6 +22,8 @@ public:
 
     void plot();
 
+    double setPosition(QPointF position);
+
     void setMinXValue(double min);
     void setMinYValue(double min);
 
@@ -39,7 +41,8 @@ public:
 
 signals:
 
-public slots:
+private slots:
+    void calculateStep();
 
 private:
     Q3DSurface *m_graph;
@@ -52,6 +55,9 @@ private:
     QPointF m_center = {0, 0};
     double m_maxY = std::numeric_limits<double>::min();
     double m_minY = std::numeric_limits<double>::max();
+
+    double m_stepX;
+    double m_stepZ;
 
     void maxGradient();
     void minGradient();

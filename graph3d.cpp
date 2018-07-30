@@ -29,6 +29,17 @@ Graph3D::Graph3D(Q3DSurface *surface,
     m_graph->axisX()->setLabelAutoRotation(90);
     m_graph->axisY()->setLabelAutoRotation(90);
     m_graph->axisZ()->setLabelAutoRotation(90);
+
+    calculateStep();
+
+    connect(m_graph->axisX(), SIGNAL(maxChanged(float)),
+            this, SLOT(calculateStep()));
+    connect(m_graph->axisX(), SIGNAL(minChanged(float)),
+            this, SLOT(calculateStep()));
+    connect(m_graph->axisZ(), SIGNAL(maxChanged(float)),
+            this, SLOT(calculateStep()));
+    connect(m_graph->axisZ(), SIGNAL(minChanged(float)),
+            this, SLOT(calculateStep()));
 }
 
 Graph3D::~Graph3D()
@@ -104,6 +115,12 @@ void Graph3D::setCenter(QPointF center)
     m_graph->axisZ()->setRange(m_graph->axisZ()->min() + float(offset.y()), m_graph->axisZ()->max() + float(offset.y()));
 }
 
+void Graph3D::calculateStep()
+{
+    m_stepX = (double(m_graph->axisX()->max()) - double(m_graph->axisX()->min())) / (sampleCountX - 1);
+    m_stepZ = (double(m_graph->axisX()->max()) - double(m_graph->axisX()->min())) / (sampleCountZ - 1);
+}
+
 void Graph3D::maxGradient()
 {
     QLinearGradient gr;
@@ -134,16 +151,14 @@ void Graph3D::minGradient()
 
 void Graph3D::plot()
 {
-    double stepX = (double(m_graph->axisX()->max()) - double(m_graph->axisX()->min())) / (sampleCountX - 1);
-    double stepZ = (double(m_graph->axisX()->max()) - double(m_graph->axisX()->min())) / (sampleCountZ - 1);
     QSurfaceDataArray *dataArray = new QSurfaceDataArray;
     dataArray->reserve(sampleCountZ);
     for (int i = 0 ; i < sampleCountZ ; i++) {
         QSurfaceDataRow *newRow = new QSurfaceDataRow(sampleCountX);
-        double z = qMin(double(m_graph->axisX()->max()), (i * stepZ + double(m_graph->axisX()->min())));
+        double z = qMin(double(m_graph->axisX()->max()), (i * m_stepZ + double(m_graph->axisX()->min())));
         int index = 0;
         for (int j = 0; j < sampleCountX; j++) {
-            double x = qMin(double(m_graph->axisX()->max()), (j * stepX + double(m_graph->axisX()->min())));
+            double x = qMin(double(m_graph->axisX()->max()), (j * m_stepX + double(m_graph->axisX()->min())));
             double y = function(x, z);
             if (y > m_maxY)
                 m_maxY = y;
@@ -158,4 +173,9 @@ void Graph3D::plot()
     m_graph->clearSelection();
     m_graph->addSeries(m_dataSeries);
     maxGradient();
+}
+
+double Graph3D::setPosition(QPointF position)
+{
+    return position.x();
 }
