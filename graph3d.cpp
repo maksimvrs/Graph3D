@@ -40,6 +40,10 @@ Graph3D::Graph3D(Q3DSurface *surface,
             this, SLOT(calculateStep()));
     connect(m_graph->axisZ(), SIGNAL(minChanged(float)),
             this, SLOT(calculateStep()));
+
+    connect(m_graph, SIGNAL(selectedSeriesChanged(QSurface3DSeries*)),
+            this, SLOT(setSelectedSeries(QSurface3DSeries*)));
+    setPosition(QPoint(1, 1));
 }
 
 Graph3D::~Graph3D()
@@ -175,7 +179,41 @@ void Graph3D::plot()
     maxGradient();
 }
 
+void Graph3D::setSelectedSeries(QSurface3DSeries *series)
+{
+    setGridPosition(series->selectedPoint());
+    connect(series, SIGNAL(selectedPointChanged(const QPoint&)),
+            this, SLOT(setGridPosition(const QPoint&)));
+}
+
+void Graph3D::setGridPosition(const QPoint &position)
+{
+    double y = qMin(double(m_graph->axisX()->max()), (position.x() * m_stepX + double(m_graph->axisX()->min())));
+    double x = qMin(double(m_graph->axisZ()->max()), (position.y() * m_stepZ + double(m_graph->axisZ()->min())));
+    m_position = QVector3D(float(x), float(function(x, y)), float(y));
+}
+
 double Graph3D::setPosition(QPointF position)
 {
-    return position.x();
+    int x = qRound((position.x() - double(m_graph->axisX()->min())) / m_stepX);
+    int z = qRound((position.y() - double(m_graph->axisZ()->min())) / m_stepZ);
+    if (m_graph->selectedSeries()) {
+        m_graph->selectedSeries()->setSelectedPoint(QPoint(x,  z));
+        m_dataSeries->setSelectedPoint(QPoint(x,  z));
+    }
+    else {
+        qDebug() << "Series dont selected";
+    }
+    m_position = QVector3D(float(position.x()), float(function(position.x(), position.y())), float(position.y()));
+    return function(position.x(), position.y());
+}
+
+QVector3D Graph3D::getPosition()
+{
+    return m_position;
+}
+
+void Graph3D::setPositionSlot(QPointF position)
+{
+    setPosition(position);
 }

@@ -23,6 +23,7 @@ public:
     void plot();
 
     double setPosition(QPointF position);
+    QVector3D getPosition();
 
     void setMinXValue(double min);
     void setMinYValue(double min);
@@ -41,8 +42,13 @@ public:
 
 signals:
 
+public slots:
+    void setPositionSlot(QPointF position);
+
 private slots:
     void calculateStep();
+    void setSelectedSeries(QSurface3DSeries *series);
+    void setGridPosition(const QPoint &position);
 
 private:
     Q3DSurface *m_graph;
@@ -58,6 +64,8 @@ private:
 
     double m_stepX;
     double m_stepZ;
+
+    QVector3D m_position;
 
     void maxGradient();
     void minGradient();
