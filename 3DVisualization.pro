@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets datavisualization
+QT       += core gui widgets datavisualization testlib
 
 TARGET = 3DVisualization
 TEMPLATE = app
@@ -20,14 +20,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-CONFIG += c++11
+CONFIG += c++11 testcase
 
 SOURCES += \
         main.cpp \
-    graph3d.cpp
+        src/graph3d.cpp \
+        tests/test_graph3d.cpp
 
 HEADERS += \
-    graph3d.hpp
+    src/graph3d.hpp
 
 CONFIG += mobility
 MOBILITY = 

@@ -3,7 +3,9 @@
 #include <QtWidgets/QPushButton>
 #include <QtGui/QScreen>
 
-#include "graph3d.hpp"
+#include "src/graph3d.hpp"
+
+#include "tests/test_graph3d.cpp"
 
 double func(double x, double y)
 {
